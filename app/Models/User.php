@@ -25,6 +25,11 @@ class User extends Authenticatable
         'password'
     ];
 
+    public function page()
+    {
+        return $this->hasMany(Page::class, 'user_id');
+    }
+
     /**
      * Get the attributes that should be cast.
      *

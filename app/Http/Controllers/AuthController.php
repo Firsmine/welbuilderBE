@@ -24,7 +24,10 @@ class AuthController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Registration',
-                'data' => [$user, 'token' => $token]
+                'data' => array_merge(
+                    $user->toArray(),
+                    ['token' => $token]
+                )
             ], 201);
         } catch (ValidationException $e) {
             return response()->json([
@@ -55,7 +58,10 @@ class AuthController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Login successful',
-            'data' => [$user, 'token' => $token]
+            'data' => array_merge(
+                $user->toArray(),
+                ['token' => $token]
+            )
         ]);
     }
 
