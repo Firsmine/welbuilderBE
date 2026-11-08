@@ -40,9 +40,9 @@ class PageController extends Controller
             'data' => $page
         ]);
     }
-    public function show(Request $request, string $slug)
+    public function show(Request $request, string $pageSlug)
     {
-        $page = Page::with(['section.template', 'section.fieldValues.templateFields'])->where('slug', $slug)->first();
+        $page = Page::with(['section.template', 'section.fieldValues.templateFields'])->where('slug', $pageSlug)->first();
 
         if (!$page) {
             return response()->json([
@@ -82,10 +82,10 @@ class PageController extends Controller
             'data' => $formattedSections
         ]);
     }
-    public function update(Request $request, string $slug)
+    public function update(Request $request, string $pageSlug)
     {
-        $page = Page::where('slug', $slug)->first();
-        if (!$slug) {
+        $page = Page::where('slug', $pageSlug)->first();
+        if (!$pageSlug) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Not found'
@@ -118,11 +118,11 @@ class PageController extends Controller
             'data' => $page
         ]);
     }
-    public function destroy(Request $request, string $slug)
+    public function destroy(Request $request, string $pageSlug)
     {
-        $page = Page::where('slug', $slug)->first();
+        $page = Page::where('slug', $pageSlug)->first();
 
-        if (!$slug) {
+        if (!$pageSlug) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Not found'
