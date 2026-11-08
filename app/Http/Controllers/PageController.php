@@ -41,7 +41,45 @@ class PageController extends Controller
     }
     public function show(Request $request, string $slug)
     {
-        //
+        $page = Page::with(['section.template', 'section.fieldValues.templateFields'])->where('slug', $slug)->first();
+
+        if (!$page) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Not found'
+            ]);
+        }
+        if ($page->user_id !== $request->user()->id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Forbidden access'
+            ]);
+        }
+        $formattedSections = $page->section->map(function ($section) {
+            return [
+                'id' => $section->id,
+                'position' => $section->position,
+                'template' => $section->template,
+                'field' => $section->template->field->map(function ($templateField) use ($section) {
+                    $val = $section->fieldValues->where('template_field_id', $templateField->id)->first();
+                    return [
+                        'id' => $templateField->id,
+                        'name' => $templateField->name,
+                        'slug' => $templateField->slug,
+                        'type' => $templateField->type,
+                        'value' => $templateField->value
+                    ];
+                })->value()
+            ];
+        });
+        $pageData = $page->toArray();
+        $pageData['section'] = $formattedSections;
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Get page successful',
+            'data' => $formattedSections
+        ]);
     }
     public function update(Request $request, string $slug)
     {
