@@ -87,6 +87,25 @@ class PageController extends Controller
     }
     public function destroy(Request $request, string $slug)
     {
-        //
+        $page = Page::where('slug', $slug)->first();
+
+        if (!$slug) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Not found'
+            ]);
+        }
+        if ($page->user_id !== $request->user()->id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Forbidden access'
+            ]);
+        }
+
+        $page->delete();
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Page deleted successful'
+        ]);
     }
 }
