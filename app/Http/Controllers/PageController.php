@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Page;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
 class PageController extends Controller
@@ -83,7 +84,39 @@ class PageController extends Controller
     }
     public function update(Request $request, string $slug)
     {
-        //
+        $page = Page::where('slug', $slug)->first();
+        if (!$slug) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Not found'
+            ]);
+        }
+        if ($page->user_id !== $request->user()->id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Forbidden access'
+            ]);
+        }
+
+        $data = Validator::make($request->all(), [
+            'title' => 'sometimes|string',
+            'slug' => ['sometimes', 'string', 'regex:/^[a-z-0-9-]+$/', Rule::unique('pages')->ignore($page->id)],
+            'summary' => 'nullable|string'
+        ]);
+        if ($data->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid field',
+                'errors' => $data->errors()
+            ]);
+        }
+
+        $page->update($data->validated());
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Page updated successful',
+            'data' => $page
+        ]);
     }
     public function destroy(Request $request, string $slug)
     {
