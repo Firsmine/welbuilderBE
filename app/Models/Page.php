@@ -14,7 +14,7 @@ class Page extends Model
         'slug',
         'user_id'
     ];
-    public function pageSection()
+    public function section()
     {
         return $this->hasMany(Page_section::class, 'page_id');
     }

@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Page;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Validator;
+use Illuminate\Support\Facades\Validator;
+use App\Models\Page_section;
 
 class PageController extends Controller
 {
@@ -42,44 +43,60 @@ class PageController extends Controller
     }
     public function show(Request $request, string $pageSlug)
     {
-        $page = Page::with(['section.template', 'section.fieldValues.templateFields'])->where('slug', $pageSlug)->first();
+        // $page = Page::with(['section.template.templateField', 'section.sectionField'])->where('slug', $pageSlug)->first();
+
+        // if (!$page) {
+        //     return response()->json([
+        //         'status' => 'error',
+        //         'message' => 'Not found'
+        //     ]);
+        // }
+        // if ($page->user_id !== $request->user()->id) {
+        //     return response()->json([
+        //         'status' => 'error',
+        //         'message' => 'Forbidden access'
+        //     ]);
+        // }
+        // $formattedSections = $page->section->map(function ($section) {
+        //     return [
+        //         'id' => $section->id,
+        //         'position' => $section->position,
+        //         'template' => $section->template,
+        //         'field' => $section->template->templateField->map(function ($templateField) use ($section) {
+        //             $val = $section->sectionField->where('template_field_id', $templateField->id)->first();
+        //             return [
+        //                 'id' => $templateField->id,
+        //                 'name' => $templateField->name,
+        //                 'slug' => $templateField->slug,
+        //                 'type' => $templateField->type,
+        //                 'value' => $val ? $val->value : null
+        //             ];
+        //         })->values()
+        //     ];
+        // });
+
+        // return response()->json([
+        //     'status' => 'success',
+        //     'message' => 'Get page successful',
+        //     'data' => $formattedSections
+        // ], 200);
+
+        $page = Page::where('slug', $pageSlug)->first();
 
         if (!$page) {
             return response()->json([
-                'status' => 'error',
-                'message' => 'Not found'
-            ]);
+                'error' => 'Page not found'
+            ], 404);
         }
-        if ($page->user_id !== $request->user()->id) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Forbidden access'
-            ]);
-        }
-        $formattedSections = $page->section->map(function ($section) {
-            return [
-                'id' => $section->id,
-                'position' => $section->position,
-                'template' => $section->template,
-                'field' => $section->template->field->map(function ($templateField) use ($section) {
-                    $val = $section->fieldValues->where('template_field_id', $templateField->id)->first();
-                    return [
-                        'id' => $templateField->id,
-                        'name' => $templateField->name,
-                        'slug' => $templateField->slug,
-                        'type' => $templateField->type,
-                        'value' => $templateField->value
-                    ];
-                })->value()
-            ];
-        });
-        $pageData = $page->toArray();
-        $pageData['section'] = $formattedSections;
+        $sections = Page_section::where('page_id', $page->id)->get();
 
         return response()->json([
-            'status' => 'success',
-            'message' => 'Get page successful',
-            'data' => $formattedSections
+            'debug' => [
+                'page_id' => $page->id,
+                'page_slug' => $page->slug,
+                'sections_count' => $sections->count(),
+                'sections' => $sections
+            ]
         ]);
     }
     public function update(Request $request, string $pageSlug)

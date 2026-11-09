@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Template_field extends Model
 {
-    protected $table = 'templates_fields';
+    protected $table = 'template_fields';
 
     protected $fillable = [
         'name',

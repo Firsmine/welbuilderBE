@@ -15,7 +15,7 @@ class Template extends Model
 
     public function pageSection()
     {
-        return $this->hasMany(Page_section::class, 'page_id');
+        return $this->hasMany(Page_section::class, 'template_id');
     }
     public function templateField()
     {
